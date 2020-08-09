@@ -698,5 +698,6 @@ orderModel.setPromoId(promoId);
 - 下单操作多、缓慢
 - 浪涌流量如何解决
 
+## 优化版本
 [性能优化SecKill-ii](https://github.com/PJB0911/SecKill-ii)
 
