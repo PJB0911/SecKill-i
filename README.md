@@ -506,7 +506,7 @@ public CommonReturnType login(@RequestParam(name = "telphone")String telphone,
     // 获取用户输入密码       
     var inputPass = $("#password").val();
     // 获取salt    
-    var salt = g_passsword_salt;
+    var salt = "1a2b3c4d";
     // md5+salt，与服务器端的第一次MD5规则一致
     var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
     var password = md5(str);
