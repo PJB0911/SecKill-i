@@ -503,18 +503,18 @@ public CommonReturnType login(@RequestParam(name = "telphone")String telphone,
 但是此时我们要是在后端加入随机盐值和传输密码的md5组合，黑客是无法知道通过后端密码加密过程的，从而无法知道密码。
 
 ```javascript
-    /   / 获取用户输入密码
-        var inputPass = $("#password").val();
-        // 获取salt
-        var salt = g_passsword_salt;
-        // md5+salt，与服务器端的第一次MD5规则一致
-        var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
-        var password = md5(str);
+    // 获取用户输入密码       
+    var inputPass = $("#password").val();
+    // 获取salt    
+    var salt = g_passsword_salt;
+    // md5+salt，与服务器端的第一次MD5规则一致
+    var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
+    var password = md5(str);
 ```
 
 ```java
     /**
-     * @param encrptPassword 封装了客户端传递过来的加密密码
+     * @param encrptPassword 客户端传递过来的加密密码
      */
     public String login(String telphone, String encrptPassword) {
         // 判断手机号是否存在
