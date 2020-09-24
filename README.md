@@ -480,7 +480,9 @@ public CommonReturnType login(@RequestParam(name = "telphone")String telphone,
     return CommonReturnType.create(null);
 }
 ```
-### 明文密码两次MD5处理
+
+
+####  改进：明文密码两次MD5处理
 
 - 客户端：C_PASS=MD5(明文+固定salt)
 - 服务端：S_PASS=MD5(C_PASS+随机salt)
@@ -493,12 +495,52 @@ public CommonReturnType login(@RequestParam(name = "telphone")String telphone,
 
 第二次：在服务端再次加密，当获取到前端发送来的密码后。通过MD5（密码+随机盐值）再次生成密码后存入数据库。
 
-防止数据库被盗的情况下，通过md5反查，查获用户密码。方法是盐值会在用户登陆的时候随机生成，并存在数据库中，这个时候就会获取到。
+防止数据库被盗的情况下，通过md5反查，查获用户密码。方法是随机盐值会在用户注册的时候随机生成，并存在数据库中，用户登陆时就会从数据库获取到随机盐值。
 
 第二次的目的：
 黑客若是同时黑掉数据库，通过解析前端js文件，知道如果md5加密的过程，就知道此时用户的密码。
 
 但是此时我们要是在后端加入随机盐值和传输密码的md5组合，黑客是无法知道通过后端密码加密过程的，从而无法知道密码。
+
+```javascript
+    /   / 获取用户输入密码
+        var inputPass = $("#password").val();
+        // 获取salt
+        var salt = g_passsword_salt;
+        // md5+salt，与服务器端的第一次MD5规则一致
+        var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
+        var password = md5(str);
+```
+
+```java
+    /**
+     * @param encrptPassword 封装了客户端传递过来的加密密码
+     */
+    public String login(String telphone, String encrptPassword) {
+        // 判断手机号是否存在
+        SeckillUser user = this.getMiaoshaUserById(Long.parseLong(mobile));
+        if (user == null)
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+        // 判断手机号对应的密码是否一致
+        String dbPassword = user.getPassword();
+        String dbSalt = user.getSalt();
+        String calcPass = MD5Util.formPassToDbPass(password, dbSalt);
+        if (!calcPass.equals(dbPassword))
+            throw new GlobalException(CodeMsg.PASSWORD_ERROR);
+    
+    }
+
+    /**
+     * 对客户端传来的密码md5加盐，加盐后的md5为存储在数据库中的密码md5
+     * @param formPassword 客户端传来的密码
+     * @param saltDb       数据库查出来的salt
+     * @return
+     */
+    public static String formPassToDbPass(String formPassword, String saltDb) {
+        String str = "" + saltDb.charAt(0) + saltDb.charAt(2) + formPassword + saltDb.charAt(5) + saltDb.charAt(4);
+        return md5(str);
+    }
+```
 
 
 ----------
